@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Festa na Roça!</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 2em; background: #f2f2f2; }
+    .card { background: #fff; padding: 2em; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body>
+  <div class="card" id="content">
+    <p>Carregando...</p>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("ID");
+
+    const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS2nk0L487gI8DoP8s0LC80lKCDv-6zvdAxg0e2X6KV-bssPJ0ocmlTs-c4bzmHSnRBb5r6Lb6gClPM/pub?gid=1555276640&single=true&output=csv"; // <- seu link aqui
+
+    fetch(urlCSV)
+      .then(res => res.text())
+      .then(text => {
+        const rows = text.split("\n").map(row => row.split(","));
+        const headers = rows[0];
+        const data = rows.slice(1);
+        const indexID = headers.indexOf("ID");
+
+        const match = data.find(row => row[indexID] === id);
+
+        if (match) {
+          let html = `<h1>Convite Confirmado</h1>`;
+          headers.forEach((h, i) => {
+            html += `<p><strong>${h}:</strong> ${match[i]}</p>`;
+          });
+          document.getElementById("content").innerHTML = html;
+        } else {
+          document.getElementById("content").innerHTML = "<p>ID não encontrado.</p>";
+        }
+      })
+      .catch(err => {
+        document.getElementById("content").innerHTML = "<p>Erro ao carregar dados.</p>";
+      });
+  </script>
+</body>
+</html>
